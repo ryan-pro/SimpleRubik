@@ -3,20 +3,8 @@
 [AddComponentMenu("SimpleMagicCube/UI/Menu Controller")]
 public class MenuController : MonoBehaviour
 {
-    public void StartNewGame(int cubeSize)
-    {
-        DisplayOutroTransition();
-
-        //Either find a way to communicate with the game (manager) or reconsider separate scenes
-        //Alternatively, ScriptableObject game/scene manager
-    }
-
-    public void ContinueGame()
-    {
-        DisplayOutroTransition();
-
-        //Same comments as above
-    }
+    [SerializeField]
+    private ModalControl quitPrompt;
 
     private void DisplayOutroTransition()
     {
@@ -24,9 +12,12 @@ public class MenuController : MonoBehaviour
         //Fade-outs, animations, etc. for showing a fade-to-game
     }
 
-    public void PrepareQuit()
+    public async void PrepareQuit()
     {
-        //Modal confirmation here
-        Application.Quit();
+        if (await quitPrompt.ShowMessage("Are you sure you want to quit?"))
+        {
+            Application.Quit();
+            Debug.Log("Game has ended!");
+        }
     }
 }

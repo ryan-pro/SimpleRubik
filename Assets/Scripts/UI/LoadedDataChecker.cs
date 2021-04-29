@@ -8,14 +8,13 @@ public class LoadedDataChecker : MonoBehaviour
     public class BoolEvent : UnityEvent<bool> { }
 
     [SerializeField]
-    private ScriptableObject placeholderDataObject;
+    private CubeData cubeData;
     [SerializeField]
     private BoolEvent onDataStatusChanged;
 
     private void OnEnable()
     {
-        //TODO: Check if deserialized data is loaded, set Interactable value
-        onDataStatusChanged.Invoke(false);  //Temp value
+        onDataStatusChanged.Invoke(cubeData.IsDataLoaded);
     }
 
     public void UpdateDataStatus(bool loaded)
