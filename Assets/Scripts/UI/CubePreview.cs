@@ -4,24 +4,37 @@ using UnityEngine;
 public class CubePreview : MonoBehaviour
 {
     [SerializeField]
-    private CubeData loadedCubeData;
+    private LoadedCubeData loadedCubeData;
+
     [SerializeField]
-    private Transform cubeParent, cubeRotator;
+    private Cube cubeObject;
+
+    [SerializeField]
+    private Transform cubeRotator;
     [SerializeField]
     private Animation rotateAnimator;
     [SerializeField]
     private AnimationCurve resetAnimationCurve;
 
+    private void Start() => GenerateNewCube();
     private void OnEnable() => loadedCubeData.OnDataUpdated += UpdateCubeWithNewData;
     private void OnDisable() => loadedCubeData.OnDataUpdated -= UpdateCubeWithNewData;
 
-    private void UpdateCubeWithNewData(object sender, System.EventArgs e)
+    public void GenerateNewCube(bool forceNew = false)
     {
-        //TODO: Recreate cube with new data
-        throw new System.NotImplementedException();
+        if (loadedCubeData.IsDataLoaded && !forceNew)
+            cubeObject.CreateCubeFromData(loadedCubeData);
+        else
+            cubeObject.CreateNewCube(loadedCubeData.DesiredNewSize);
+
+        foreach (var comp in GetComponentsInChildren<Component>())
+            comp.gameObject.layer = gameObject.layer;
     }
 
-    public void DebugResetRotation()
+    private void UpdateCubeWithNewData(object sender, System.EventArgs e)
+        => GenerateNewCube();
+
+    public void ResetRotation()
     {
         var curCubeRotation = cubeRotator.localRotation;
         rotateAnimator.Stop();

@@ -1,19 +1,38 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 [CreateAssetMenu(menuName = "Simple Magic Cube/Game Flow Manager")]
 public class GameFlowManager : ScriptableObject
 {
-    public void InitiateGame(bool newGame)
+    private MenuController menuController;
+    private LevelManager levelManager;
+
+    public void SetMenuReference(MenuController menu) => menuController = menu;
+    public void SetLevelReference(LevelManager level) => levelManager = level;
+
+    public async UniTask LaunchMenu() => await menuController.DisplayIntroTransition(true);
+
+    public void InitiateGame(bool newGame) => TransitionToGame(newGame).Forget();
+    private async UniTaskVoid TransitionToGame(bool newGame)
     {
-        //Transition out of menu
-        //Based on param, game script will determine whether or not to shuffle
-        if (newGame)
-            Debug.Log("New game started!");
-        else
-            Debug.Log("Previous game continued!");
+        await menuController.DisplayOutroTransition();
+
+        menuController.SetGameUI(true);
+        levelManager.InitializeNewGame();
+
+        await menuController.DisplayIntroTransition(false);
+        await levelManager.StartGameplay(newGame);
+    }
+
+    public void EndGame() => TransitionToMenu().Forget();
+
+    public async UniTaskVoid TransitionToMenu()
+    {
+        await menuController.DisplayOutroTransition();
+
+        levelManager.CleanUpLevel();
+        menuController.SetGameUI(false);
+
+        await menuController.DisplayIntroTransition(true);
     }
 }

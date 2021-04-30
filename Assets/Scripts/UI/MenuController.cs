@@ -1,18 +1,46 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 [AddComponentMenu("SimpleMagicCube/UI/Menu Controller")]
 public class MenuController : MonoBehaviour
 {
+    [Header("Menus")]
+    [SerializeField]
+    private GameObject menuObject;
+    [SerializeField]
+    private GameObject gameUIObject;
+
+    [Header("Utilities")]
+    [SerializeField]
+    private GameFlowManager flowManager;
     [SerializeField]
     private ModalControl quitPrompt;
+    [SerializeField]
+    private AnimatedFader fader;
 
-    private void DisplayOutroTransition()
+    [Header("Options")]
+    [SerializeField]
+    private float fadeDuration = 1f;
+
+    private void Awake() => flowManager.SetMenuReference(this);
+
+    public async UniTask DisplayIntroTransition(bool showMenu)
     {
-        //TODO: Make awaitable
-        //Fade-outs, animations, etc. for showing a fade-to-game
+        menuObject.SetActive(showMenu);
+        await fader.FadeIn(fadeDuration);
     }
 
-    public async void PrepareQuit()
+    public async UniTask DisplayOutroTransition()
+    {
+        await fader.FadeOut(fadeDuration);
+        menuObject.SetActive(false);
+    }
+
+    public void SetGameUI(bool active) => gameUIObject.SetActive(active);
+
+    public void Quit() => PrepareQuit().Forget();
+
+    private async UniTaskVoid PrepareQuit()
     {
         if (await quitPrompt.ShowMessage("Are you sure you want to quit?"))
         {

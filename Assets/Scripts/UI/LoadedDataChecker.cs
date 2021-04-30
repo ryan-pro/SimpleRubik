@@ -8,7 +8,7 @@ public class LoadedDataChecker : MonoBehaviour
     public class BoolEvent : UnityEvent<bool> { }
 
     [SerializeField]
-    private CubeData cubeData;
+    private LoadedCubeData cubeData;
     [SerializeField]
     private BoolEvent onDataStatusChanged;
 
