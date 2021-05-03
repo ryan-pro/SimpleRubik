@@ -1,20 +1,24 @@
 ﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 
+[AddComponentMenu("Smart Magic Cube/UI/Cube Preview")]
 public class CubePreview : MonoBehaviour
 {
+    [Header("Animation Options")]
     [SerializeField]
-    private LoadedCubeData loadedCubeData;
+    private float rotationDuration = 0.5f;
+    [SerializeField]
+    private AnimationCurve resetAnimationCurve;
+    [SerializeField]
+    private Animation rotateAnimator;
 
+    [Header("References")]
     [SerializeField]
     private Cube cubeObject;
-
     [SerializeField]
     private Transform cubeRotator;
     [SerializeField]
-    private Animation rotateAnimator;
-    [SerializeField]
-    private AnimationCurve resetAnimationCurve;
+    private LoadedCubeData loadedCubeData;
 
     private void Start() => GenerateNewCube();
     private void OnEnable() => loadedCubeData.OnDataUpdated += UpdateCubeWithNewData;
@@ -45,12 +49,11 @@ public class CubePreview : MonoBehaviour
     private async UniTaskVoid SmoothResetRotation(Quaternion startRotation)
     {
         var elapsed = 0f;
-        float testDuration = 0.5f;
 
-        while(elapsed < testDuration)
+        while(elapsed < rotationDuration)
         {
             elapsed += Time.deltaTime;
-            cubeRotator.localRotation = Quaternion.Slerp(startRotation, Quaternion.identity, resetAnimationCurve.Evaluate(elapsed / testDuration));
+            cubeRotator.localRotation = Quaternion.Slerp(startRotation, Quaternion.identity, resetAnimationCurve.Evaluate(elapsed / rotationDuration));
 
             await UniTask.NextFrame();
         }

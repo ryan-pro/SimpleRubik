@@ -1,12 +1,17 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 public class Cublet : MonoBehaviour
 {
     private Vector3 originalPosition;
+
+    [SerializeField]
+    private bool isCenter;
+
+    public bool IsCenter
+    {
+        get => isCenter;
+        set => isCenter = value;
+    }
 
     public void SetTransformFromData(CubletData savedData)
     {

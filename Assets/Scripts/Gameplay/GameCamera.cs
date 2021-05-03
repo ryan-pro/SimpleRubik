@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using System.Linq;
+using UnityEngine;
 
 public class GameCamera : MonoBehaviour
 {
@@ -30,24 +32,41 @@ public class GameCamera : MonoBehaviour
 
     private void Awake() => camTransform = cam.transform;
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
         camTransform.position = target.position - (Vector3.forward * distance);
         camParent.rotation = Quaternion.Euler(new Vector3(20f, -40f, camParent.rotation.eulerAngles.z));
         camTransform.LookAt(target);
+
+        while (inputController.InputEvents == null)
+            await UniTask.Yield();
+
+        inputEvents = inputController.InputEvents;
+
+        inputEvents.ButtonChanged -= OnButtonUpdated;
+        inputEvents.ButtonChanged += OnButtonUpdated;
+
+        inputEvents.ScrollChanged -= OnScrollUpdated;
+        inputEvents.ScrollChanged += OnScrollUpdated;
     }
 
     private void OnEnable()
     {
         if (inputEvents == null)
-            inputEvents = inputController.InputEvents;
+            return;
 
+        inputEvents.ButtonChanged -= OnButtonUpdated;
         inputEvents.ButtonChanged += OnButtonUpdated;
+
+        inputEvents.ScrollChanged -= OnScrollUpdated;
         inputEvents.ScrollChanged += OnScrollUpdated;
     }
 
     private void OnDisable()
     {
+        if (inputEvents == null)
+            return;
+
         inputEvents.ButtonChanged -= OnButtonUpdated;
         inputEvents.ScrollChanged -= OnScrollUpdated;
     }
@@ -67,7 +86,7 @@ public class GameCamera : MonoBehaviour
 
     private void OnButtonUpdated(object sender, ButtonEventArgs args)
     {
-        if (args.PressedDown && args.Hit.collider == null)
+        if (args.PressedDown && args.Hits.All(a => a.collider == null))
         {
             canRotate = true;
             inputEvents.CursorMoved += OnCursorMoved;

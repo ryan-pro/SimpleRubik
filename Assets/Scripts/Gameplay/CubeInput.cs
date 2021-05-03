@@ -1,12 +1,11 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class CubeInput : MonoBehaviour
 {
-    [SerializeField]
-    private string cubeTag;
+    [Header("References")]
     [SerializeField]
     private Cube cubeObject;
     [SerializeField]
@@ -14,11 +13,18 @@ public class CubeInput : MonoBehaviour
     [SerializeField]
     private Camera gameplayCam;
 
+    [Header("Options")]
+    [SerializeField]
+    private string spinnerTag = "Spinner";
+    [SerializeField, Range(0.01f, 1f)]
+    private float dragDistanceThreshold = 1f;
+
     private IInput inputEvents;
 
     private bool wasPressed;
     private Vector2 startPos;
-    private Transform hitCublet;
+    private readonly RaycastHit[] secondHits = new RaycastHit[20];
+    private List<Spinner> potentialSpinners = new List<Spinner>(2);
 
     private async UniTaskVoid Start()
     {
@@ -26,13 +32,17 @@ public class CubeInput : MonoBehaviour
             await UniTask.Yield();
 
         inputEvents = inputController.InputEvents;
+        inputEvents.ButtonChanged -= OnButtonUpdated;
         inputEvents.ButtonChanged += OnButtonUpdated;
     }
 
     private void OnEnable()
     {
-        if (inputEvents != null)
-            inputEvents.ButtonChanged += OnButtonUpdated;
+        if (inputEvents == null)
+            return;
+
+        inputEvents.ButtonChanged -= OnButtonUpdated;
+        inputEvents.ButtonChanged += OnButtonUpdated;
     }
 
     private void OnDisable()
@@ -41,63 +51,79 @@ public class CubeInput : MonoBehaviour
             inputEvents.ButtonChanged -= OnButtonUpdated;
     }
 
-    private void DetermineCubletGroup(Vector2 endPoint)
-    {
-        var firstWorldPoint = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 10f));
-        var secondWorldPoint = gameplayCam.ScreenToWorldPoint(new Vector3(endPoint.x, endPoint.y, 10f));
-        var direction = (secondWorldPoint - firstWorldPoint).normalized;
-        Debug.Log(direction);
-
-        Transform secondCublet = null;
-        if (Physics.Raycast(hitCublet.transform.position, direction, out var hit, 1f) && hit.collider.gameObject.CompareTag(cubeTag))
-            secondCublet = hit.transform;
-        else if (Physics.Raycast(hitCublet.transform.position, direction * -1, out var reverseHit, 1f) && reverseHit.collider.gameObject.CompareTag(cubeTag))
-            secondCublet = reverseHit.transform;
-        else
-            throw new System.ArgumentNullException("No second cublet found!");
-
-        var spinner = System.Array.Find(cubeObject.Spinners, a => a.Cublets.Contains(hitCublet.gameObject) && a.Cublets.Contains(secondCublet.gameObject));
-
-        if (spinner == null)
-            throw new System.ArgumentNullException("No appropriate spinner found!");
-
-        //cubeObject.RotateSpinner(spinner, IsPositive(direction));
-    }
-
-    private bool IsPositive(Vector3 dir)
-    {
-        if(dir.x > 0.6f || dir.y > 0.6f || dir.z > 0.6f)
-        {
-            Debug.Log("Positive");
-            return true;
-        }
-        else
-        {
-            Debug.Log("Negative");
-            return false;
-        }
-    }
-
     private void OnButtonUpdated(object sender, ButtonEventArgs args)
     {
-        if (args.PressedDown && args.Hit.collider != null && args.Hit.collider.CompareTag(cubeTag))
+        var validHits = args.Hits.Where(a => a.collider != null && a.collider.CompareTag(spinnerTag));
+
+        if (args.PressedDown && validHits.Any())
         {
+            var cursorWorldPos = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 1f));
+
+            potentialSpinners = validHits
+                .OrderBy(a => (a.point - cursorWorldPos).sqrMagnitude)
+                .Select(b => b.collider.GetComponent<Spinner>())
+                .Take(2).ToList();
+
             startPos = args.ScreenPosition;
-            hitCublet = args.Hit.transform;
-            //Debug.Log("Touched cube!");
+            inputEvents.CursorMoved += OnCursorMoved;
 
             wasPressed = true;
             return;
         }
         else if (!args.PressedDown && wasPressed)
         {
-            //Debug.Log("Released.");
             DetermineCubletGroup(args.ScreenPosition);
 
+            inputEvents.CursorMoved -= OnCursorMoved;
             wasPressed = false;
             return;
         }
 
         wasPressed = false;
     }
+
+    private void OnCursorMoved(object sender, PositionEventArgs args)
+    {
+        if (!wasPressed || potentialSpinners.Count < 2)
+            return;
+
+        System.Array.Clear(secondHits, 0, secondHits.Length);
+
+        if(Physics.RaycastNonAlloc(gameplayCam.ScreenPointToRay(args.Position), secondHits) > 0)
+        {
+            var cursorWorldPos = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 1f));
+
+            var validHits = secondHits
+                .Where(a => a.collider != null && a.collider.CompareTag(spinnerTag))
+                .OrderBy(b => (b.point - cursorWorldPos).sqrMagnitude).Take(2);
+
+            foreach(var spin in potentialSpinners)
+            {
+                if (validHits.All(a => a.transform != spin.transform))
+                {
+                    potentialSpinners.Remove(spin);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void DetermineCubletGroup(Vector2 endPoint)
+    {
+        var startWorldPoint = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 10f));
+        var endWorldPoint = gameplayCam.ScreenToWorldPoint(new Vector3(endPoint.x, endPoint.y, 10f));
+        var heading = endWorldPoint - startWorldPoint;
+
+        if (heading.sqrMagnitude < dragDistanceThreshold)
+            return;
+
+        var direction = heading.normalized;
+
+        if (potentialSpinners.Count == 1)
+            cubeObject.RotateSpinner(potentialSpinners[0], IsPositive(direction)).Forget();
+        else
+            Debug.Log("Couldn't determine spinner.");
+    }
+
+    private bool IsPositive(Vector3 dir) => dir.x > 0.6f || dir.y > 0.6f || dir.z > 0.6f;
 }

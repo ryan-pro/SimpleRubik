@@ -1,29 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 public class Cube : MonoBehaviour
 {
     [SerializeField]
     private Cublet cubletPrefab;
     [SerializeField]
-    private LoadedCubeData loadedCubeData;
+    private Spinner spinnerPrefab;
     [SerializeField]
-    private bool spawnOnStart = true;
+    private LoadedCubeData loadedCubeData;
 
     private int size;
     private Cublet[] cublets = new Cublet[0];
     private Spinner[] spinners = new Spinner[0];
 
     public Spinner[] Spinners => spinners;
-
-    //private void Start()
-    //{
-    //    if (spawnOnStart && Application.isEditor)
-    //        CreateNewCube(3);
-    //}
 
     public void CreateNewCube(int size)
     {
@@ -41,38 +32,44 @@ public class Cube : MonoBehaviour
             {
                 for (int x = 0; x < size; x++)
                 {
-                    cublets[index] = Instantiate(cubletPrefab, transform);
-                    cublets[index].transform.localPosition = spawnPoint + new Vector3(x, y, z);
+                    var newCublet = Instantiate(cubletPrefab, transform);
+                    newCublet.transform.localPosition = spawnPoint + new Vector3(x, y, z);
 
+                    if (cublets.Length % 2 > 0 && Mathf.FloorToInt(cublets.Length / 2f) == index)
+                        newCublet.IsCenter = true;
+
+                    cublets[index] = newCublet;
                     index++;
                 }
             }
         }
 
         //Spinners
+        if (spinnerPrefab == null)
+            return;
+
         spinners = new Spinner[size * 3];
         index = 0;
 
         for (int i = 0; i < size; i++)
         {
-            var spinner = new GameObject("Spinner A", typeof(Spinner)).GetComponent<Spinner>();
-            spinner.transform.parent = transform;
+            var spinner = Instantiate(spinnerPrefab, transform);
             spinner.transform.localPosition = spawnPoint + new Vector3(i + 0.5f, size / 2f, size / 2f);
             spinner.transform.Rotate(Vector3.up, 90f, Space.Self);
             spinners[index++] = spinner;
 
-            spinner = new GameObject("Spinner B", typeof(Spinner)).GetComponent<Spinner>();
-            spinner.transform.parent = transform;
+            spinner = Instantiate(spinnerPrefab, transform);
             spinner.transform.localPosition = spawnPoint + new Vector3(size / 2f, i + 0.5f, size / 2f);
             spinner.transform.Rotate(Vector3.right, 90f, Space.Self);
             spinners[index++] = spinner;
 
-            spinner = new GameObject("Spinner C", typeof(Spinner)).GetComponent<Spinner>();
-            spinner.transform.parent = transform;
+            spinner = Instantiate(spinnerPrefab, transform);
             spinner.transform.localPosition = spawnPoint + new Vector3(size / 2f, size / 2f, i + 0.5f);
-            spinner.transform.Rotate(Vector3.forward, 90f, Space.Self);
             spinners[index++] = spinner;
         }
+
+        foreach(var spin in spinners)
+            spin.SetUpPhysics(size);
     }
 
     public void CreateCubeFromData(LoadedCubeData data)
@@ -83,9 +80,15 @@ public class Cube : MonoBehaviour
             cublets[i].SetTransformFromData(data.Cublets[i]);
     }
 
-    public void RotateSpinner(Spinner chosenSpinner, bool forward)
+    public void RefreshSpinners()
     {
-        chosenSpinner.Spin(forward);
+        foreach (var spin in spinners)
+            spin.UpdateCollection();
+    }
+
+    public async UniTaskVoid RotateSpinner(Spinner chosenSpinner, bool forward)
+    {
+        await chosenSpinner.Spin(forward);
 
         foreach (var spin in spinners)
             spin.UpdateCollection();

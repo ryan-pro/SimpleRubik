@@ -44,6 +44,8 @@ public class LevelManager : MonoBehaviour
 
     public async UniTask StartGameplay(bool newGame)
     {
+        cubeObject.RefreshSpinners();
+
         if (newGame)
             await TriggerNewGameShuffle();
 

@@ -3,38 +3,40 @@
 public class MouseInput : IInput
 {
     private Camera cam;
-    private Vector2 previousMousePos;
+    private RaycastHit[] hits = new RaycastHit[20];
 
     public event System.EventHandler<ButtonEventArgs> ButtonChanged;
     public event System.EventHandler<ScrollEventArgs> ScrollChanged;
     public event System.EventHandler<PositionEventArgs> CursorMoved;
+
     public MouseInput(Camera cam) => this.cam = cam;
 
     public void UpdateInputEvents()
     {
         Vector2 curMousePos = Input.mousePosition;
+        System.Array.Clear(hits, 0, hits.Length);
 
         if(Input.GetMouseButtonDown(0))
         {
-            Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out var hit);
+            Physics.RaycastNonAlloc(cam.ScreenPointToRay(curMousePos), hits);
 
             ButtonChanged?.Invoke(this, new ButtonEventArgs
             {
                 PressedDown = true,
                 ScreenPosition = curMousePos,
-                Hit = hit
+                Hits = hits
             });
         }
 
         if(Input.GetMouseButtonUp(0))
         {
-            Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out var hit);
+            Physics.RaycastNonAlloc(cam.ScreenPointToRay(curMousePos), hits);
 
             ButtonChanged?.Invoke(this, new ButtonEventArgs
             {
                 PressedDown = false,
                 ScreenPosition = curMousePos,
-                Hit = hit
+                Hits = hits
             });
         }
 
@@ -45,6 +47,7 @@ public class MouseInput : IInput
 
         CursorMoved?.Invoke(this, new PositionEventArgs
         {
+            Position = curMousePos,
             Delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"))
         });
 
