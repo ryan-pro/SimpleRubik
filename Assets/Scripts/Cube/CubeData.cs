@@ -2,6 +2,6 @@
 public class CubeData
 {
     public int Size;
-    public CubletData[] Cublets;
-    public UndoAction[] UndoList;
+    public CubeletData[] Cubelets;
+    public SpinAction[] UndoList;
 }

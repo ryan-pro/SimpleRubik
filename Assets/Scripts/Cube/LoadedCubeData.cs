@@ -10,8 +10,8 @@ public class LoadedCubeData : ScriptableObject
     private string serializedFile = "cubeprogress.save";
 
     public int Size { get; private set; }
-    public CubletData[] Cublets { get; private set; }
-    public UndoAction[] UndoList { get; private set; }
+    public CubeletData[] Cubelets { get; private set; }
+    public SpinAction[] UndoList { get; private set; }
 
     private int desiredNewSize = 3;
     public int DesiredNewSize
@@ -47,24 +47,24 @@ public class LoadedCubeData : ScriptableObject
             return;
 
         Size = loadedData.Size;
-        Cublets = loadedData.Cublets;
+        Cubelets = loadedData.Cubelets;
         //TODO: Undos
 
         IsDataLoaded = true;
         OnDataUpdated?.Invoke(this, System.EventArgs.Empty);
     }
 
-    public void UpdateCurrentData(int size, CubletData[] newData)
+    public void UpdateCurrentData(int size, CubeletData[] newData)
     {
         Size = size;
-        Cublets = newData;
+        Cubelets = newData;
         //TODO: Get undos
 
 
         SerializeCurrentData(new CubeData
         {
             Size = Size,
-            Cublets = Cublets
+            Cubelets = Cubelets
             //TODO: undos
         });
 

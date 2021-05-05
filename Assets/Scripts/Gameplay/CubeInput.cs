@@ -53,15 +53,16 @@ public class CubeInput : MonoBehaviour
 
     private void OnButtonUpdated(object sender, ButtonEventArgs args)
     {
-        var validHits = args.Hits.Where(a => a.collider != null && a.collider.CompareTag(spinnerTag));
+        var validHits = args.Hits.Where(a => a.collider != null);
 
         if (args.PressedDown && validHits.Any())
         {
             var cursorWorldPos = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 1f));
 
             potentialSpinners = validHits
-                .OrderBy(a => (a.point - cursorWorldPos).sqrMagnitude)
-                .Select(b => b.collider.GetComponent<Spinner>())
+                .Where(a => a.collider.CompareTag(spinnerTag))
+                .OrderBy(b => (b.point - cursorWorldPos).sqrMagnitude)
+                .Select(c => c.collider.GetComponent<Spinner>())
                 .Take(2).ToList();
 
             startPos = args.ScreenPosition;
@@ -72,7 +73,7 @@ public class CubeInput : MonoBehaviour
         }
         else if (!args.PressedDown && wasPressed)
         {
-            DetermineCubletGroup(args.ScreenPosition);
+            DetermineCubeletGroup(args.ScreenPosition);
 
             inputEvents.CursorMoved -= OnCursorMoved;
             wasPressed = false;
@@ -93,13 +94,13 @@ public class CubeInput : MonoBehaviour
         {
             var cursorWorldPos = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 1f));
 
-            var validHits = secondHits
+            var spinnerHits = secondHits
                 .Where(a => a.collider != null && a.collider.CompareTag(spinnerTag))
                 .OrderBy(b => (b.point - cursorWorldPos).sqrMagnitude).Take(2);
 
-            foreach(var spin in potentialSpinners)
+            foreach (var spin in potentialSpinners)
             {
-                if (validHits.All(a => a.transform != spin.transform))
+                if (spinnerHits.All(a => a.transform != spin.transform))
                 {
                     potentialSpinners.Remove(spin);
                     break;
@@ -108,11 +109,9 @@ public class CubeInput : MonoBehaviour
         }
     }
 
-    private void DetermineCubletGroup(Vector2 endPoint)
+    private void DetermineCubeletGroup(Vector2 endPoint)
     {
-        var startWorldPoint = gameplayCam.ScreenToWorldPoint(new Vector3(startPos.x, startPos.y, 10f));
-        var endWorldPoint = gameplayCam.ScreenToWorldPoint(new Vector3(endPoint.x, endPoint.y, 10f));
-        var heading = endWorldPoint - startWorldPoint;
+        var heading = startPos - endPoint;
 
         if (heading.sqrMagnitude < dragDistanceThreshold)
             return;
@@ -120,10 +119,18 @@ public class CubeInput : MonoBehaviour
         var direction = heading.normalized;
 
         if (potentialSpinners.Count == 1)
-            cubeObject.RotateSpinner(potentialSpinners[0], IsPositive(direction)).Forget();
+            cubeObject.ExecuteRotation(potentialSpinners[0], IsPositive(direction), false, true).Forget();
         else
             Debug.Log("Couldn't determine spinner.");
+
+        CleanUpInputData();
     }
 
     private bool IsPositive(Vector3 dir) => dir.x > 0.6f || dir.y > 0.6f || dir.z > 0.6f;
+
+    private void CleanUpInputData()
+    {
+        startPos = Vector2.zero;
+        potentialSpinners.Clear();
+    }
 }

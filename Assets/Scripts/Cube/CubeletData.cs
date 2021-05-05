@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [System.Serializable]
-public class CubletData
+public class CubeletData
 {
     public Vector3 OriginalLocalPosition;
     public Vector3 MostRecentLocalPosition;

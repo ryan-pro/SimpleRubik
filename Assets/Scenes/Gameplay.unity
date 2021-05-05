@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.4
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 1646194011}
-  m_IndirectSpecularColor: {r: 0.28739783, g: 0.32141668, b: 0.37493876, a: 0.4}
+  m_IndirectSpecularColor: {r: 0.28739822, g: 0.32141706, b: 0.37493786, a: 0.4}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -224,11 +224,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7071e2b7d12edaf47bfec130ced66c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubletPrefab: {fileID: 8052902526374118515, guid: ec72f1d8062ce654795c842cb6a873ed,
+  cubeletPrefab: {fileID: 8052902526374118515, guid: ec72f1d8062ce654795c842cb6a873ed,
     type: 3}
   spinnerPrefab: {fileID: 8009277849841152958, guid: d41d845e896702f4eb648b1c8a568a71,
     type: 3}
   loadedCubeData: {fileID: 11400000, guid: fbf1a594b94ffc3468b2d626fd11fa37, type: 2}
+  undoController: {fileID: 11400000, guid: 47c8850bf57125842b37740d4121f476, type: 2}
+  cubeSolved:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 583621085}
+        m_MethodName: OnCubeSolved
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &535403039
 Transform:
   m_ObjectHideFlags: 0
@@ -255,6 +270,7 @@ GameObject:
   - component: {fileID: 583621085}
   - component: {fileID: 583621084}
   - component: {fileID: 583621087}
+  - component: {fileID: 583621088}
   m_Layer: 0
   m_Name: Level Contents
   m_TagString: Untagged
@@ -289,8 +305,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cubeObject: {fileID: 535403038}
   inputController: {fileID: 583621084}
+  winAnimator: {fileID: 583621088}
   flowManager: {fileID: 11400000, guid: 03fe839d0c0a5db4a954d5efb90c12ca, type: 2}
   loadedCubeData: {fileID: 11400000, guid: fbf1a594b94ffc3468b2d626fd11fa37, type: 2}
+  undoController: {fileID: 11400000, guid: 47c8850bf57125842b37740d4121f476, type: 2}
   timer: {fileID: 11400000, guid: 5416c856c16f6ed46897745cc4831fca, type: 2}
 --- !u!4 &583621086
 Transform:
@@ -325,6 +343,71 @@ MonoBehaviour:
   gameplayCam: {fileID: 468651686}
   spinnerTag: Spinner
   dragDistanceThreshold: 1
+--- !u!114 &583621088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583621083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2f85e2f1881b7444a278955c5c420ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomDistance: 20
+  zoomDuration: 1
+  zoomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  rotation: 720
+  rotateDuration: 4
+  rotationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  cam: {fileID: 1983486258}
 --- !u!1 &1646194010
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,7 +419,7 @@ GameObject:
   - component: {fileID: 1646194012}
   - component: {fileID: 1646194011}
   m_Layer: 0
-  m_Name: Directional Light
+  m_Name: Directional Light Upper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -428,7 +511,7 @@ GameObject:
   - component: {fileID: 1737619939}
   - component: {fileID: 1737619938}
   m_Layer: 0
-  m_Name: Directional Light (1)
+  m_Name: Directional Light Lower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -543,6 +626,7 @@ MonoBehaviour:
   target: {fileID: 535403039}
   inputController: {fileID: 583621084}
   distance: 15
+  zoomSpeed: 10
   dampener: 0.15
 --- !u!4 &1983486259
 Transform:

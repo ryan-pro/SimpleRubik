@@ -1078,10 +1078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cd7ae41754a29b47b769e50473e5d11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loadedCubeData: {fileID: 11400000, guid: fbf1a594b94ffc3468b2d626fd11fa37, type: 2}
-  cubeObject: {fileID: 843997637}
-  cubeRotator: {fileID: 1745953087}
-  rotateAnimator: {fileID: 365521206}
+  rotationDuration: 0.5
   resetAnimationCurve:
     serializedVersion: 2
     m_Curve:
@@ -1106,6 +1103,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  rotateAnimator: {fileID: 365521206}
+  cubeObject: {fileID: 843997637}
+  cubeRotator: {fileID: 1745953087}
+  loadedCubeData: {fileID: 11400000, guid: fbf1a594b94ffc3468b2d626fd11fa37, type: 2}
 --- !u!1 &457384930
 GameObject:
   m_ObjectHideFlags: 0
@@ -2170,10 +2171,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7071e2b7d12edaf47bfec130ced66c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubletPrefab: {fileID: 8052902526374118515, guid: ec72f1d8062ce654795c842cb6a873ed,
+  cubeletPrefab: {fileID: 8052902526374118515, guid: ec72f1d8062ce654795c842cb6a873ed,
     type: 3}
+  spinnerPrefab: {fileID: 0}
   loadedCubeData: {fileID: 11400000, guid: fbf1a594b94ffc3468b2d626fd11fa37, type: 2}
-  spawnOnStart: 1
+  cubeSolved:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &862570170
 GameObject:
   m_ObjectHideFlags: 0

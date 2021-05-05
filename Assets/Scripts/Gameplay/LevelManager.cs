@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 
+[AddComponentMenu("Simple Magic Cube/Game/Level Manager")]
 public class LevelManager : MonoBehaviour
 {
     [Header("Scene Objects")]
@@ -8,12 +9,16 @@ public class LevelManager : MonoBehaviour
     private Cube cubeObject;
     [SerializeField]
     private InputController inputController;
+    [SerializeField]
+    private GameWinAnimator winAnimator;
 
     [Header("Utilities")]
     [SerializeField]
     private GameFlowManager flowManager;
     [SerializeField]
     private LoadedCubeData loadedCubeData;
+    [SerializeField]
+    private UndoController undoController;
     [SerializeField]
     private Timer timer;
 
@@ -27,6 +32,15 @@ public class LevelManager : MonoBehaviour
             cubeObject.CreateNewCube(loadedCubeData.DesiredNewSize);
 
         ResetGameplay();
+    }
+
+    public void OnCubeSolved()
+    {
+        inputController.enabled = false;
+        undoController.Clear();
+        timer.StopCounting();
+
+        HandleWinCompletion().Forget();
     }
 
     public void CleanUpLevel()
@@ -51,6 +65,14 @@ public class LevelManager : MonoBehaviour
 
         timer.StartCounting();
         inputController.enabled = true;
+    }
+
+    private async UniTaskVoid HandleWinCompletion()
+    {
+        await winAnimator.Animate(this.GetCancellationTokenOnDestroy());
+
+        //TODO: Show congrats dialog, passing timer string
+        Debug.Log("You solved the cube!");
     }
 
     public void StopGameplay()

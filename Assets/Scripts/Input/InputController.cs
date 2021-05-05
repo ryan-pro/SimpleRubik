@@ -10,7 +10,7 @@ public class InputController : MonoBehaviour
 
     private void Awake()
     {
-        if (Application.isMobilePlatform)
+        if (Input.touchSupported)
             inputEvents = new MouseInput(gameplayCam);  //TODO: Replace with touch version
         else
             inputEvents = new MouseInput(gameplayCam);

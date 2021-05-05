@@ -19,6 +19,8 @@ public class GameCamera : MonoBehaviour
     [Header("Options")]
     [SerializeField, Range(10f, 30f)]
     private float distance = 10f;
+    [SerializeField]
+    private float zoomSpeed = 8f;
     [SerializeField, Range(0f, 1f)]
     private float dampener = 0.15f;
 
@@ -29,6 +31,14 @@ public class GameCamera : MonoBehaviour
     private Vector2 rotVector;
 
     private bool canRotate;
+
+    public Transform ParentTransform => camParent.transform;
+
+    public float Distance
+    {
+        get => distance;
+        set => distance = value;
+    }
 
     private void Awake() => camTransform = cam.transform;
 
@@ -73,13 +83,13 @@ public class GameCamera : MonoBehaviour
 
     private void LateUpdate()
     {
-        camTransform.localPosition = camParent.localPosition - (Vector3.forward * distance);
+        camTransform.localPosition = Vector3.MoveTowards(camTransform.localPosition, camParent.localPosition - (Vector3.forward * distance), zoomSpeed * Time.deltaTime);
 
         if (canRotate)
         {
             rotVector += inputVector;
 
-            rotVector = new Vector2(Mathf.Lerp(rotVector.x, 0, dampener), Mathf.Lerp(rotVector.y, 0, dampener));
+            rotVector = Vector2.Lerp(rotVector, Vector2.zero, dampener);
             camParent.eulerAngles += new Vector3(-rotVector.y, rotVector.x, 0f);
         }
     }
@@ -100,7 +110,8 @@ public class GameCamera : MonoBehaviour
 
     private void OnScrollUpdated(object sender, ScrollEventArgs args)
     {
-
+        var newDistance = distance - (args.ScrollValue * zoomSpeed);
+        distance = Mathf.Clamp(newDistance, 10f, 30f);
     }
 
     private void OnCursorMoved(object sender, PositionEventArgs args)
