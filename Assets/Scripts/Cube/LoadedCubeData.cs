@@ -9,9 +9,13 @@ public class LoadedCubeData : ScriptableObject
     [SerializeField]
     private string serializedFile = "cubeprogress.save";
 
-    public int Size { get; private set; }
-    public CubeletData[] Cubelets { get; private set; }
-    public SpinAction[] UndoList { get; private set; }
+    private int size;
+    private CubeletData[] cubelets;
+    private SpinAction[] undoList;
+
+    //public int Size { get; private set; }
+    //public CubeletData[] Cubelets { get; private set; }
+    //public SpinAction[] UndoList { get; private set; }
 
     private int desiredNewSize = 3;
     public int DesiredNewSize
@@ -40,14 +44,21 @@ public class LoadedCubeData : ScriptableObject
         set => isDataLoaded = value;
     }
 
+    public CubeData ToData() => new CubeData()
+    {
+        Size = size,
+        Cubelets = cubelets,
+        UndoList = undoList
+    };
+
     public void LoadSavedData()
     {
         var loadedData = DeserializeSaveFile();
         if (loadedData == null)
             return;
 
-        Size = loadedData.Size;
-        Cubelets = loadedData.Cubelets;
+        size = loadedData.Size;
+        cubelets = loadedData.Cubelets;
         //TODO: Undos
 
         IsDataLoaded = true;
@@ -56,15 +67,15 @@ public class LoadedCubeData : ScriptableObject
 
     public void UpdateCurrentData(int size, CubeletData[] newData)
     {
-        Size = size;
-        Cubelets = newData;
+        this.size = size;
+        cubelets = newData;
         //TODO: Get undos
 
 
         SerializeCurrentData(new CubeData
         {
-            Size = Size,
-            Cubelets = Cubelets
+            Size = size,
+            Cubelets = cubelets
             //TODO: undos
         });
 

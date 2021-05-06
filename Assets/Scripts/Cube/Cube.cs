@@ -34,11 +34,11 @@ public class Cube : MonoBehaviour
     {
         InstantiateCubeContents(size);
 
-        foreach (var c in cubelets)
-            c.ResetInitialPosition();
+        //foreach (var c in cubelets)
+        //    c.ResetInitialPosition();
     }
 
-    public void CreateCubeFromData(LoadedCubeData data)
+    public void CreateCubeFromData(CubeData data)
     {
         CreateNewCube(data.Size);
 
@@ -105,6 +105,19 @@ public class Cube : MonoBehaviour
             spin.SetUpPhysics(size);
     }
 
+    public void SetAsInitialState()
+    {
+        foreach (var c in cubelets)
+            c.ResetInitialPosition();
+    }
+
+    public CubeData GetCurrentCubeState() => new CubeData()
+    {
+        Size = size,
+        Cubelets = cubelets.Select(a => a.BackUpData()).ToArray(),
+        UndoList = undoController.ToArray()
+    };
+
     public void RefreshSpinners()
     {
         foreach (var spin in spinners)
@@ -147,13 +160,13 @@ public class Cube : MonoBehaviour
 
         if (cubelets.Length > 0)
         {
-            foreach (var c in cubelets)
+            foreach (var c in cubelets.Where(a => a != null))
                 Destroy(c.gameObject);
         }
 
         if (spinners.Length > 0)
         {
-            foreach (var s in spinners)
+            foreach (var s in spinners.Where(a => a != null))
                 Destroy(s.gameObject);
         }
     }

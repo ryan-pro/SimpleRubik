@@ -9,12 +9,14 @@ public class MenuController : MonoBehaviour
     private GameObject menuObject;
     [SerializeField]
     private GameObject gameUIObject;
+    [SerializeField]
+    private ModalControl gameWinPrompt;
+    [SerializeField]
+    private ModalControl quitPrompt;
 
     [Header("Utilities")]
     [SerializeField]
     private GameFlowManager flowManager;
-    [SerializeField]
-    private ModalControl quitPrompt;
     [SerializeField]
     private AnimatedFader fader;
 
@@ -38,11 +40,14 @@ public class MenuController : MonoBehaviour
 
     public void SetGameUI(bool active) => gameUIObject.SetActive(active);
 
+    public UniTask<ModalResult> PresentWinPrompt(string message)
+        => gameWinPrompt.ShowMessage(message, "Play Again", "Return to Menu");
+
     public void Quit() => PrepareQuit().Forget();
 
     private async UniTaskVoid PrepareQuit()
     {
-        if (await quitPrompt.ShowMessage("Are you sure you want to quit?"))
+        if (await quitPrompt.ShowMessage("Are you sure you want to quit?") == ModalResult.Positive)
         {
             Application.Quit();
             Debug.Log("Game has ended!");

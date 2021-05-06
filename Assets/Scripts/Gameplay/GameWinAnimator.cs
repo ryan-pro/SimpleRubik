@@ -24,7 +24,9 @@ public class GameWinAnimator : MonoBehaviour
     [SerializeField]
     private GameCamera cam;
 
-    public async UniTask Animate(CancellationToken token)
+    public UniTask Animate() => PlayAnimation(this.GetCancellationTokenOnDestroy());
+
+    private async UniTask PlayAnimation(CancellationToken token)
     {
         var startZoom = cam.Distance;
 
@@ -41,10 +43,9 @@ public class GameWinAnimator : MonoBehaviour
             return;
 
         var startRot = cam.ParentTransform.eulerAngles;
-        //var endRot = startRot * Quaternion.Euler(new Vector3(0f, rotation, 0f));
 
         elapsed = 0f;
-        while(elapsed < rotateDuration && !token.IsCancellationRequested)
+        while (elapsed < rotateDuration && !token.IsCancellationRequested)
         {
             elapsed += Time.deltaTime;
 

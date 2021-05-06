@@ -6,8 +6,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Simple Magic Cube/Undo Controller")]
 public class UndoController : ScriptableObject
 {
-    private readonly Stack<SpinAction> undoStack = new Stack<SpinAction>();             //Actions that can be undone
+    private Stack<SpinAction> undoStack = new Stack<SpinAction>();             //Actions that can be undone
     private readonly Queue<SpinAction> requestedUndoQueue = new Queue<SpinAction>();    //Actions requested to be undone (in case the player rapidly presses the Undo button)
+
     private Cube targetCube;
 
     private UniTask backgroundTask;
@@ -45,6 +46,11 @@ public class UndoController : ScriptableObject
             await UniTask.Yield();
         }
     }
+
+    public void SetUndoStack(SpinAction[] undoActions)
+        => undoStack = new Stack<SpinAction>(undoActions);
+
+    public SpinAction[] ToArray() => undoStack.ToArray();
 
     public void Clear() => undoStack.Clear();
 

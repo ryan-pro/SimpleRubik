@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 583621085}
   - component: {fileID: 583621084}
   - component: {fileID: 583621087}
+  - component: {fileID: 583621089}
   - component: {fileID: 583621088}
   m_Layer: 0
   m_Name: Level Contents
@@ -305,6 +306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cubeObject: {fileID: 535403038}
   inputController: {fileID: 583621084}
+  shuffler: {fileID: 583621089}
   winAnimator: {fileID: 583621088}
   flowManager: {fileID: 11400000, guid: 03fe839d0c0a5db4a954d5efb90c12ca, type: 2}
   loadedCubeData: {fileID: 11400000, guid: fbf1a594b94ffc3468b2d626fd11fa37, type: 2}
@@ -408,6 +410,19 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   cam: {fileID: 1983486258}
+--- !u!114 &583621089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583621083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2ab842c851c1843b65683cb3ee3803, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shuffleCount: 12
 --- !u!1 &1646194010
 GameObject:
   m_ObjectHideFlags: 0

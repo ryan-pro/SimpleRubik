@@ -36,14 +36,25 @@ public class GameplayMenu : MonoBehaviour
         animator.Play();
     }
 
+    public void RestartGame() => PrepareRestart().Forget();
+
+    private async UniTaskVoid PrepareRestart()
+    {
+        if(await quitPrompt.ShowMessage("Are you sure you want to restart?\r\nProgress will be lost.") == ModalResult.Positive)
+        {
+            SetMenuStatus(false);
+            flowManager.RestartGame();
+        }
+    }
+
     public void ExitToMenu() => PrepareToExit().Forget();
 
     private async UniTaskVoid PrepareToExit()
     {
-        if(await quitPrompt.ShowMessage("Return to Main Menu?"))
+        if(await quitPrompt.ShowMessage("Return to Main Menu?") == ModalResult.Positive)
         {
+            SetMenuStatus(false);
             flowManager.EndGame();
-            Debug.Log("Returning to menu.");
         }
     }
 }

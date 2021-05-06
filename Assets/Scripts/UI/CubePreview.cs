@@ -27,7 +27,7 @@ public class CubePreview : MonoBehaviour
     public void GenerateNewCube(bool forceNew = false)
     {
         if (loadedCubeData.IsDataLoaded && !forceNew)
-            cubeObject.CreateCubeFromData(loadedCubeData);
+            cubeObject.CreateCubeFromData(loadedCubeData.ToData());
         else
             cubeObject.CreateNewCube(loadedCubeData.DesiredNewSize);
 

@@ -10,6 +10,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField]
     private InputController inputController;
     [SerializeField]
+    private CubeShuffler shuffler;
+    [SerializeField]
     private GameWinAnimator winAnimator;
 
     [Header("Utilities")]
@@ -22,16 +24,49 @@ public class LevelManager : MonoBehaviour
     [SerializeField]
     private Timer timer;
 
+    private CubeData gameStartData;     //Used to persist cube state at game start; unserialized
+
     private void Awake() => flowManager.SetLevelReference(this);
 
     public void InitializeNewGame()
     {
         if (loadedCubeData.IsDataLoaded)
-            cubeObject.CreateCubeFromData(loadedCubeData);
+        {
+            var data = loadedCubeData.ToData();
+            cubeObject.CreateCubeFromData(data);
+            undoController.SetUndoStack(data.UndoList);
+        }
         else
+        {
             cubeObject.CreateNewCube(loadedCubeData.DesiredNewSize);
+            cubeObject.SetAsInitialState();
+            undoController.Clear();
+        }
 
         ResetGameplay();
+    }
+
+    public void SetCubeFromStartData()
+    {
+        if (gameStartData != null)
+        {
+            cubeObject.CreateCubeFromData(gameStartData);
+            undoController.SetUndoStack(gameStartData.UndoList);
+        }
+    }
+
+    public async UniTask StartGameplay(bool newGame)
+    {
+        cubeObject.RefreshSpinners();
+
+        if (newGame)
+            await shuffler.ShuffleCube(cubeObject);
+
+        gameStartData = cubeObject.GetCurrentCubeState();
+        //TODO: Serialize new data
+
+        timer.StartCounting();
+        inputController.enabled = true;
     }
 
     public void OnCubeSolved()
@@ -43,36 +78,16 @@ public class LevelManager : MonoBehaviour
         HandleWinCompletion().Forget();
     }
 
+    private async UniTaskVoid HandleWinCompletion()
+    {
+        await winAnimator.Animate();
+        flowManager.HandleGameWin("Completion Time: " + timer.GetTimeByMinute());
+    }
+
     public void CleanUpLevel()
     {
         StopGameplay();
         cubeObject.CleanCube();
-    }
-
-    private UniTask TriggerNewGameShuffle()
-    {
-
-        //TODO: Shuffle the cube
-        return UniTask.Delay(1000);
-    }
-
-    public async UniTask StartGameplay(bool newGame)
-    {
-        cubeObject.RefreshSpinners();
-
-        if (newGame)
-            await TriggerNewGameShuffle();
-
-        timer.StartCounting();
-        inputController.enabled = true;
-    }
-
-    private async UniTaskVoid HandleWinCompletion()
-    {
-        await winAnimator.Animate(this.GetCancellationTokenOnDestroy());
-
-        //TODO: Show congrats dialog, passing timer string
-        Debug.Log("You solved the cube!");
     }
 
     public void StopGameplay()
