@@ -1,6 +1,7 @@
 ﻿[System.Serializable]
 public class SpinAction
 {
-    public Spinner UsedSpinner;
-    public bool SpunForward;
+    public Spinner SpinnerObject;
+    public string SpinnerName;
+    public bool Forward;
 }

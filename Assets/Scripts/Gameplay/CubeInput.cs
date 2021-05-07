@@ -119,7 +119,7 @@ public class CubeInput : MonoBehaviour
         var direction = heading.normalized;
 
         if (potentialSpinners.Count == 1)
-            cubeObject.ExecuteRotation(potentialSpinners[0], IsPositive(direction), false, true).Forget();
+            cubeObject.Rotate(potentialSpinners[0], IsPositive(direction), false, true).Forget();
         else
             Debug.Log("Couldn't determine spinner.");
 

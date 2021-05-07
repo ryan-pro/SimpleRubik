@@ -6,8 +6,11 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Simple Magic Cube/Undo Controller")]
 public class UndoController : ScriptableObject
 {
-    private Stack<SpinAction> undoStack = new Stack<SpinAction>();             //Actions that can be undone
-    private readonly Queue<SpinAction> requestedUndoQueue = new Queue<SpinAction>();    //Actions requested to be undone (in case the player rapidly presses the Undo button)
+    //Actions that can be undone
+    private Stack<SpinAction> undoStack = new Stack<SpinAction>();
+
+    //Actions requested to be undone (in case the player rapidly presses the Undo button)
+    private readonly Queue<SpinAction> requestedUndoQueue = new Queue<SpinAction>();
 
     private Cube targetCube;
 
@@ -40,7 +43,7 @@ public class UndoController : ScriptableObject
             while(requestedUndoQueue.Count > 0)
             {
                 var toUndo = requestedUndoQueue.Dequeue();
-                await targetCube.ExecuteRotation(toUndo.UsedSpinner, !toUndo.SpunForward, true, false);
+                await targetCube.Rotate(toUndo.SpinnerObject, !toUndo.Forward, true, false);
             }
 
             await UniTask.Yield();
@@ -48,9 +51,28 @@ public class UndoController : ScriptableObject
     }
 
     public void SetUndoStack(SpinAction[] undoActions)
-        => undoStack = new Stack<SpinAction>(undoActions);
+    {
+        foreach(var action in undoActions)
+        {
+            if (action.SpinnerObject == null)
+                action.SpinnerObject = System.Array.Find(FindObjectsOfType<Spinner>(), a => a.name == action.SpinnerName);
+        }
 
-    public SpinAction[] ToArray() => undoStack.ToArray();
+        undoStack = new Stack<SpinAction>(undoActions);
+    }
+
+    public SpinAction[] ToArray()
+    {
+        var result = undoStack.ToArray();
+
+        foreach(var action in result)
+        {
+            if(action.SpinnerObject != null)
+                action.SpinnerName = action.SpinnerObject.name;
+        }
+
+        return result;
+    }
 
     public void Clear() => undoStack.Clear();
 

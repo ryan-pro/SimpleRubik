@@ -63,8 +63,9 @@ public class Spinner : MonoBehaviour
 
         return new SpinAction()
         {
-            UsedSpinner = this,
-            SpunForward = forward
+            SpinnerObject = this,
+            SpinnerName = name,
+            Forward = forward
         };
     }
 }

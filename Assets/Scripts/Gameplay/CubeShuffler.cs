@@ -27,7 +27,7 @@ public class CubeShuffler : MonoBehaviour
                 return;
 
             var curAction = shuffleQueue.Dequeue();
-            await cubeObject.ExecuteRotation(curAction.UsedSpinner, curAction.SpunForward, true, false);
+            await cubeObject.Rotate(curAction.SpinnerObject, curAction.Forward, true, false);
         }
     }
 
@@ -45,8 +45,8 @@ public class CubeShuffler : MonoBehaviour
 
             shuffleQueue.Enqueue(new SpinAction
             {
-                UsedSpinner = curSpinner,
-                SpunForward = System.Convert.ToBoolean(Random.Range(0, 2))
+                SpinnerObject = curSpinner,
+                Forward = System.Convert.ToBoolean(Random.Range(0, 2))
             });
         }
     }

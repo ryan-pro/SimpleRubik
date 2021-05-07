@@ -59,24 +59,24 @@ public class LoadedCubeData : ScriptableObject
 
         size = loadedData.Size;
         cubelets = loadedData.Cubelets;
-        //TODO: Undos
+        undoList = loadedData.UndoList;
 
         IsDataLoaded = true;
         OnDataUpdated?.Invoke(this, System.EventArgs.Empty);
     }
 
-    public void UpdateCurrentData(int size, CubeletData[] newData)
+    public void UpdateCurrentData(int newSize, CubeletData[] newCubelets, SpinAction[] newUndos)
     {
-        this.size = size;
-        cubelets = newData;
-        //TODO: Get undos
+        size = newSize;
+        cubelets = newCubelets;
+        undoList = newUndos;
 
 
-        SerializeCurrentData(new CubeData
+        SerializeCurrentData(new CubeData()
         {
             Size = size,
-            Cubelets = cubelets
-            //TODO: undos
+            Cubelets = cubelets,
+            UndoList = undoList
         });
 
         IsDataLoaded = true;
@@ -98,6 +98,6 @@ public class LoadedCubeData : ScriptableObject
         var filePath = Path.Combine(Application.persistentDataPath, serializedFile);
 
         var json = JsonUtility.ToJson(toSave, true);
-        //File.WriteAllText(filePath, json);
+        File.WriteAllText(filePath, json);
     }
 }

@@ -124,7 +124,7 @@ public class Cube : MonoBehaviour
             spin.UpdateCollection();
     }
 
-    public async UniTask ExecuteRotation(Spinner chosenSpinner, bool forward, bool fastSpin, bool playerAction)
+    public async UniTask Rotate(Spinner chosenSpinner, bool forward, bool fastSpin, bool playerAction)
     {
         var action = await chosenSpinner.Spin(forward, fastSpin);
 
@@ -138,9 +138,11 @@ public class Cube : MonoBehaviour
 
         if (cubelets.All(a => a.IsInInitialPosition))
             cubeSolved.Invoke();
+        else
+            BackUpCurrentData();
     }
 
-    private void BackUpCurrentData()
+    public void BackUpCurrentData()
     {
         if (cubelets.Length == 0 || cubelets[0] == null)
             return;
@@ -150,7 +152,7 @@ public class Cube : MonoBehaviour
         for(int i = 0; i < cubelets.Length; i++)
             dataList[i] = cubelets[i].BackUpData();
 
-        //TODO: Pass array to SO
+        loadedCubeData.UpdateCurrentData(size, dataList, undoController.ToArray());
     }
 
     public void CleanCube()

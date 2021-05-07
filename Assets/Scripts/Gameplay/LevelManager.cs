@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using System.Linq;
 using UnityEngine;
 
 [AddComponentMenu("Simple Magic Cube/Game/Level Manager")]
@@ -33,6 +34,8 @@ public class LevelManager : MonoBehaviour
         if (loadedCubeData.IsDataLoaded)
         {
             var data = loadedCubeData.ToData();
+            gameStartData = data;
+
             cubeObject.CreateCubeFromData(data);
             undoController.SetUndoStack(data.UndoList);
         }
@@ -60,10 +63,12 @@ public class LevelManager : MonoBehaviour
         cubeObject.RefreshSpinners();
 
         if (newGame)
+        {
             await shuffler.ShuffleCube(cubeObject);
+            gameStartData = cubeObject.GetCurrentCubeState();
+        }
 
-        gameStartData = cubeObject.GetCurrentCubeState();
-        //TODO: Serialize new data
+        cubeObject.BackUpCurrentData();
 
         timer.StartCounting();
         inputController.enabled = true;
