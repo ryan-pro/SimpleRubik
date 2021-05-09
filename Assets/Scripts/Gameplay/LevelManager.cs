@@ -29,9 +29,9 @@ public class LevelManager : MonoBehaviour
 
     private void Awake() => flowManager.SetLevelReference(this);
 
-    public void InitializeNewGame()
+    public void InitializeNewGame(bool newGame)
     {
-        if (loadedCubeData.IsDataLoaded)
+        if (!newGame && loadedCubeData.IsDataLoaded)
         {
             var data = loadedCubeData.ToData();
             gameStartData = data;
@@ -52,10 +52,7 @@ public class LevelManager : MonoBehaviour
     public void SetCubeFromStartData()
     {
         if (gameStartData != null)
-        {
-            cubeObject.CreateCubeFromData(gameStartData);
-            undoController.SetUndoStack(gameStartData.UndoList);
-        }
+            loadedCubeData.UpdateCurrentData(gameStartData.Size, gameStartData.Cubelets, gameStartData.UndoList);
     }
 
     public async UniTask StartGameplay(bool newGame)

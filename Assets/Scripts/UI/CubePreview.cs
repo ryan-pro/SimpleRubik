@@ -20,13 +20,21 @@ public class CubePreview : MonoBehaviour
     [SerializeField]
     private LoadedCubeData loadedCubeData;
 
-    private void Start() => GenerateNewCube();
-    private void OnEnable() => loadedCubeData.OnDataUpdated += UpdateCubeWithNewData;
-    private void OnDisable() => loadedCubeData.OnDataUpdated -= UpdateCubeWithNewData;
-
-    public void GenerateNewCube(bool forceNew = false)
+    private void OnEnable()
     {
-        if (loadedCubeData.IsDataLoaded && !forceNew)
+        loadedCubeData.OnDataUpdated += UpdateCubeWithNewData;
+        GenerateNewCube();
+    }
+
+    private void OnDisable()
+    {
+        loadedCubeData.OnDataUpdated -= UpdateCubeWithNewData;
+        cubeObject.CleanCube();
+    }
+
+    public void GenerateNewCube(bool dontUseLoadedData = false)
+    {
+        if (!dontUseLoadedData && loadedCubeData.IsDataLoaded)
             cubeObject.CreateCubeFromData(loadedCubeData.ToData());
         else
             cubeObject.CreateNewCube(loadedCubeData.DesiredNewSize);
@@ -35,8 +43,8 @@ public class CubePreview : MonoBehaviour
             comp.gameObject.layer = gameObject.layer;
     }
 
-    private void UpdateCubeWithNewData(object sender, System.EventArgs e)
-        => GenerateNewCube();
+    private void UpdateCubeWithNewData(object sender, DataChangedArgs args)
+        => GenerateNewCube(args.SizeOnlyChanged);
 
     public void ResetRotation()
     {

@@ -49,8 +49,11 @@ public class MenuController : MonoBehaviour
     {
         if (await quitPrompt.ShowMessage("Are you sure you want to quit?") == ModalResult.Positive)
         {
+            await fader.FadeOut(fadeDuration);
             Application.Quit();
-            Debug.Log("Game has ended!");
+
+            if (Application.isEditor)
+                Debug.Log("Game has ended!");
         }
     }
 }

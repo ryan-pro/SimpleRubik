@@ -19,7 +19,7 @@ public class GameFlowManager : ScriptableObject
         await menuController.DisplayOutroTransition();
 
         menuController.SetGameUI(true);
-        levelManager.InitializeNewGame();
+        levelManager.InitializeNewGame(newGame);
 
         await menuController.DisplayIntroTransition(false);
         await levelManager.StartGameplay(newGame);
@@ -45,8 +45,8 @@ public class GameFlowManager : ScriptableObject
         await menuController.DisplayOutroTransition();
 
         levelManager.CleanUpLevel();
-        levelManager.InitializeNewGame();
         levelManager.SetCubeFromStartData();
+        levelManager.InitializeNewGame(false);
 
         await menuController.DisplayIntroTransition(false);
         await levelManager.StartGameplay(false);

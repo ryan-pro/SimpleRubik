@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Simple Magic Cube/Cube Data")]
 public class LoadedCubeData : ScriptableObject
 {
-    public event System.EventHandler OnDataUpdated;
+    public event System.EventHandler<DataChangedArgs> OnDataUpdated;
 
     [SerializeField]
     private string serializedFile = "cubeprogress.save";
@@ -24,7 +24,7 @@ public class LoadedCubeData : ScriptableObject
         set
         {
             desiredNewSize = value;
-            OnDataUpdated?.Invoke(this, System.EventArgs.Empty);
+            OnDataUpdated?.Invoke(this, new DataChangedArgs { SizeOnlyChanged = true });
         }
     }
     public float DesiredNewSizeFloat
@@ -33,7 +33,7 @@ public class LoadedCubeData : ScriptableObject
         set
         {
             desiredNewSize = Mathf.RoundToInt(value);
-            OnDataUpdated?.Invoke(this, System.EventArgs.Empty);
+            OnDataUpdated?.Invoke(this, new DataChangedArgs { SizeOnlyChanged = true });
         }
     }
 
@@ -62,7 +62,7 @@ public class LoadedCubeData : ScriptableObject
         undoList = loadedData.UndoList;
 
         IsDataLoaded = true;
-        OnDataUpdated?.Invoke(this, System.EventArgs.Empty);
+        OnDataUpdated?.Invoke(this, new DataChangedArgs { SizeOnlyChanged = false });
     }
 
     public void UpdateCurrentData(int newSize, CubeletData[] newCubelets, SpinAction[] newUndos)
@@ -80,7 +80,7 @@ public class LoadedCubeData : ScriptableObject
         });
 
         IsDataLoaded = true;
-        OnDataUpdated?.Invoke(this, System.EventArgs.Empty);
+        OnDataUpdated?.Invoke(this, new DataChangedArgs { SizeOnlyChanged = false });
     }
 
     private CubeData DeserializeSaveFile()
