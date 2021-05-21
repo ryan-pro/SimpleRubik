@@ -291,6 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fbfff4605810cb4d8e3250c272ce439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultToTouchControls: 0
   gameplayCam: {fileID: 468651686}
 --- !u!114 &583621085
 MonoBehaviour:

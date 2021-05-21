@@ -11,6 +11,7 @@ public class MouseInput : IInput
 
     public MouseInput(Camera cam) => this.cam = cam;
 
+    //Called in an Update loop
     public void UpdateInputEvents()
     {
         Vector2 curMousePos = Input.mousePosition;

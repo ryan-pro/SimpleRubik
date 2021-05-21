@@ -3,6 +3,8 @@
 public class InputController : MonoBehaviour
 {
     [SerializeField]
+    private bool defaultToTouchControls;
+    [SerializeField]
     private Camera gameplayCam;
 
     private IInput inputEvents;
@@ -10,8 +12,8 @@ public class InputController : MonoBehaviour
 
     private void Awake()
     {
-        if (Input.touchSupported)
-            inputEvents = new MouseInput(gameplayCam);  //TODO: Replace with touch version
+        if (Input.touchSupported || defaultToTouchControls)
+            inputEvents = new TouchInput(gameplayCam);
         else
             inputEvents = new MouseInput(gameplayCam);
     }
